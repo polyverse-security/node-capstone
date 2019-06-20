@@ -184,4 +184,13 @@ describe("X86", function () {
         cs.close();
         expect(output).not.toBeDiff(EXPECT_X86_DETAIL);
     });
+
+    it("can be disassembled iteratively", function () {
+        var cs = new capstone.Cs(capstone.ARCH_X86, capstone.MODE_64);
+        cs.detail = true;
+        var i1 = cs.disasm_iter(CODE_X86, 0x1000);
+        var i2 = cs.disasm_iter(CODE_X86, 0x1000);
+        cs.close();
+        expect([i1, i2]).not.toBeDiff(EXPECT_X86_DETAIL);
+    });
 });
