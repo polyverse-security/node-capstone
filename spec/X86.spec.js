@@ -185,12 +185,36 @@ describe("X86", function () {
         expect(output).not.toBeDiff(EXPECT_X86_DETAIL);
     });
 
-    it("can be disassembled iteratively", function () {
+    // it("can be disassembled iteratively", function () {
+    //     var cs = new capstone.Cs(capstone.ARCH_X86, capstone.MODE_64);
+    //     cs.detail = true;
+    //     var i1 = cs.disasm_iter(CODE_X86, 0x1000);
+    //     var i2 = cs.disasm_iter(CODE_X86, 0x1000);
+    //     cs.disasm_iter(CODE_X86, 0x1000);
+    //     cs.disasm_iter(CODE_X86, 0x1000);
+    //     cs.disasm_iter(CODE_X86, 0x1000);
+    //     cs.disasm_iter(CODE_X86, 0x1000);
+    //     cs.close();
+    //     expect([i1, i2]).not.toBeDiff(EXPECT_X86_DETAIL);
+    // });
+
+    it("can be disassembled iteratively with callback", function () {
         var cs = new capstone.Cs(capstone.ARCH_X86, capstone.MODE_64);
         cs.detail = true;
-        var i1 = cs.disasm_iter(CODE_X86, 0x1000);
-        var i2 = cs.disasm_iter(CODE_X86, 0x1000);
+
+        var disasm = []; 
+        var i = 0;
+        while(
+            cs.disasm_iter(CODE_X86, 0x1000, function(insn) { // jshint ignore:line
+                disasm.push(insn);
+                return insn.mnemonic !== "mov";
+            })
+            ) {
+                console.log("Iteration: ",i);
+                i++;
+            }
+            //; // jshint ignore:line
         cs.close();
-        expect([i1, i2]).not.toBeDiff(EXPECT_X86_DETAIL);
+        expect(disasm).not.toBeDiff(EXPECT_X86_DETAIL);
     });
 });
